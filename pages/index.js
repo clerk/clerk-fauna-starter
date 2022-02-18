@@ -1,8 +1,9 @@
-import React from "react";
-import Head from "next/head";
-import Link from "next/link";
-import styles from "../styles/Home.module.css";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+import React from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
+import styles from '../styles/Home.module.css';
+import { SignedIn, SignedOut, useSession } from '@clerk/nextjs';
+import { verifyIdentity } from '../lib/fauna';
 
 const ClerkFeatures = () => (
   <Link href="/user">
@@ -40,18 +41,30 @@ const SignupLink = () => (
   </Link>
 );
 
-const apiSample = `import { withSession } from '@clerk/nextjs/api'
+const clerkCode = `import { withSession } from '@clerk/nextjs/api';
 
 export default withSession((req, res) => {
-  res.statusCode = 200
   if (req.session) {
-    res.json({ id: req.session.userId })
+    res.status(200).json({ id: req.session.userId });
   } else {
-    res.json({ id: null })
+    res.status(401).json({ id: null });
   }
-})`;
+});`;
 
-// Main component using <SignedIn> & <SignedOut>.
+const faunaCode = `import faunadb from 'faunadb';
+const q = faunadb.query;
+
+export const verifyIdentity = async (secret) => {
+  const client = new faunadb.Client({
+    secret, // from JWT template
+    keepAlive: false
+  });
+  const userId = await client.query(q.CurrentIdentity());
+
+  return { id: userId };
+};`;
+
+// Main component using <SignedIn> and <SignedOut>.
 //
 // The SignedIn and SignedOut components are used to control rendering depending
 // on whether or not a visitor is signed in.
@@ -60,39 +73,41 @@ export default withSession((req, res) => {
 const Main = () => (
   <main className={styles.main}>
     <h1 className={styles.title}>Welcome to your new app</h1>
-    <p className={styles.description}>Sign up for an account to get started</p>
-
-    <div className={styles.cards}>
-      <div className={styles.card}>
-        <SignedIn>
-          <ClerkFeatures />
-        </SignedIn>
-        <SignedOut>
+    <SignedIn>
+      <p className={styles.description}>You have successfully signed in</p>
+    </SignedIn>
+    <SignedOut>
+      <p className={styles.description}>
+        Sign up for an account to get started
+      </p>
+    </SignedOut>
+    <SignedIn>
+      <Example />
+    </SignedIn>
+    <SignedOut>
+      <div className={styles.cards}>
+        <div className={styles.card}>
           <SignupLink />
-        </SignedOut>
+        </div>
+        <div className={styles.card}>
+          <Link href="https://dashboard.clerk.dev?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter">
+            <a target="_blank" rel="noopener" className={styles.cardContent}>
+              <img src="/icons/settings.svg" />
+              <div>
+                <h3>Configure settings for your app</h3>
+                <p>
+                  Visit Clerk to manage instances and configure settings for
+                  user management, theme, and more
+                </p>
+              </div>
+              <div className={styles.arrow}>
+                <img src="/icons/arrow-right.svg" />
+              </div>
+            </a>
+          </Link>
+        </div>
       </div>
-
-      <div className={styles.card}>
-        <Link href="https://dashboard.clerk.dev?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter">
-          <a target="_blank" rel="noopener" className={styles.cardContent}>
-            <img src="/icons/settings.svg" />
-            <div>
-              <h3>Configure settings for your app</h3>
-              <p>
-                Visit Clerk to manage instances and configure settings for user
-                management, theme, and more
-              </p>
-            </div>
-            <div className={styles.arrow}>
-              <img src="/icons/arrow-right.svg" />
-            </div>
-          </a>
-        </Link>
-      </div>
-    </div>
-
-    <APIRequest />
-
+    </SignedOut>
     <div className={styles.links}>
       <Link href="https://docs.clerk.dev?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter">
         <a target="_blank" rel="noopener" className={styles.link}>
@@ -101,55 +116,96 @@ const Main = () => (
       </Link>
       <Link href="https://nextjs.org/docs">
         <a target="_blank" rel="noopener" className={styles.link}>
-          <span className={styles.linkText}>Read NextJS documentation</span>
+          <span className={styles.linkText}>Read Next.js documentation</span>
         </a>
       </Link>
     </div>
   </main>
 );
 
-const APIRequest = () => {
+const Example = () => {
+  const { getToken } = useSession();
+
   React.useEffect(() => {
     if (window.Prism) {
       window.Prism.highlightAll();
     }
   });
+  const [active, setActive] = React.useState();
+  const isFauna = active === 'fauna';
   const [response, setResponse] = React.useState(
-    "// Click above to run the request"
+    '// Click above to run the request'
   );
-  const makeRequest = async () => {
-    setResponse("// Loading...");
+  const makeQuery = async () => {
+    setActive('fauna');
+    setResponse('// Loading...');
 
     try {
-      const res = await fetch("/api/getAuthenticatedUserId");
-      const body = await res.json();
-      setResponse(JSON.stringify(body, null, "  "));
+      // TODO: Update with your JWT template name
+      // https://docs.clerk.dev/popular-guides/jwt-templates
+      const secret = await getToken({ template: 'fauna' });
+      const body = await verifyIdentity(secret);
+      setResponse(JSON.stringify(body, null, '  '));
     } catch (e) {
       setResponse(
-        "// There was an error with the request. Please contact support@clerk.dev"
+        '// There was an error with the request. Please contact support@clerk.dev'
       );
     }
   };
+  const makeRequest = async () => {
+    setActive('clerk');
+    setResponse('// Loading...');
+
+    try {
+      const res = await fetch('/api/currentUser');
+      const body = await res.json();
+      setResponse(JSON.stringify(body, null, '  '));
+    } catch (e) {
+      setResponse(
+        '// There was an error with the request. Please contact support@clerk.dev'
+      );
+    }
+  };
+
   return (
     <div className={styles.backend}>
-      <h2>API request example</h2>
       <div className={styles.card}>
         <button
-          target="_blank"
-          rel="noopener"
           className={styles.cardContent}
-          onClick={() => makeRequest()}
+          onClick={makeQuery}
+          type="button"
         >
-          <img src="/icons/server.svg" />
+          <img
+            className={styles.cardLogo}
+            alt="Fauna logo"
+            src="/logos/logo-fauna.svg"
+          />
           <div>
-            <h3>fetch('/api/getAuthenticatedUserId')</h3>
-            <p>
-              Retrieve the user ID of the signed in user, or null if there is no
-              user
-            </p>
+            <h3>faunadb.query.CurrentIdentity()</h3>
+            <p>Retrieve current user ID from Fauna</p>
           </div>
           <div className={styles.arrow}>
-            <img src="/icons/download.svg" />
+            <img alt="Make request" src="/icons/download.svg" />
+          </div>
+        </button>
+      </div>
+      <div className={styles.card}>
+        <button
+          className={styles.cardContent}
+          onClick={makeRequest}
+          type="button"
+        >
+          <img
+            className={styles.cardLogo}
+            alt="Clerk logo"
+            src="/logos/logo-clerk.svg"
+          />
+          <div>
+            <h3>fetch('/api/currentUser')</h3>
+            <p>Retrieve current user ID from Next.js API route</p>
+          </div>
+          <div className={styles.arrow}>
+            <img alt="Make request" src="/icons/download.svg" />
           </div>
         </button>
       </div>
@@ -167,10 +223,18 @@ const APIRequest = () => {
       <pre>
         <code className="language-js">{response}</code>
       </pre>
-      <h4>pages/api/getAuthenticatedUserId.js</h4>
-      <pre>
-        <code className="language-js">{apiSample}</code>
-      </pre>
+      {active ? (
+        <>
+          <h4>
+            {isFauna ? 'lib/fauna/index.js' : 'pages/api/clerk/currentUser.js'}
+          </h4>
+          <pre>
+            <code className="language-js">
+              {isFauna ? faunaCode : clerkCode}
+            </code>
+          </pre>
+        </>
+      ) : null}
     </div>
   );
 };
@@ -178,7 +242,7 @@ const APIRequest = () => {
 // Footer component
 const Footer = () => (
   <footer className={styles.footer}>
-    Powered by{" "}
+    Powered by{' '}
     <a
       href="https://clerk.dev?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter"
       target="_blank"
@@ -194,14 +258,6 @@ const Footer = () => (
 
 const Home = () => (
   <div className={styles.container}>
-    <Head>
-      <title>Create Next App</title>
-      <link rel="icon" href="/favicon.ico" />
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-      ></meta>
-    </Head>
     <Main />
     <Footer />
   </div>
