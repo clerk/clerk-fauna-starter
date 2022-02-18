@@ -1,47 +1,17 @@
-# Clerk and Next.js Example
+# Clerk + Fauna Starter
 
-This example shows how to use [Clerk](https://www.clerk.dev/?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter) with Next.js. The example features adding sign up, sign in, profile management, and an authenticated API route to your Next.js application.
+This example shows how to use [Clerk](https://clerk.dev?utm_source=github&utm_medium=starter_repos&utm_campaign=fauna_starter) with Fauna. The example Next.js application features adding sign up, sign in, profile management, an authenticated query to a Fauna database, and an authenticated API route.
 
----
-
-**Clerk is Hiring!**
-
-Would you like to work on Open Source software and help maintain this repository? Apply today https://apply.workable.com/clerk-dev/.
-
----
-
-## Demo
-
-A hosted demo of this example is available at [clerk-nextjs-example.vercel.app](https://clerk-nextjs-example.vercel.app)
-
-## Deploy your own
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/clerkinc/clerk-nextjs-starter&integration-ids=oac_7uYNbc9CdDAZmNqbt3LEkO3a)
-
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
-
-```bash
-npx create-next-app --example with-clerk with-clerk-app
-# or
-yarn create next-app --example with-clerk with-clerk-app
-```
+## Running the starter
 
 To run the example locally you need to:
 
-1. Sign up at [Clerk.dev](https://www.clerk.dev/?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter).
-2. Go to [Clerk's dashboard](https://dashboard.clerk.dev/?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter) and create an application.
-3. Set the required Clerk environment variables from your Clerk project as shown at [the example env file](./.env.local.sample).
-4. `yarn` to install the required dependencies.
-5. `yarn dev` to launch the development server.
+1. Sign up for a Clerk account at https://clerk.dev.
+2. Follow the [integration instructions](https://docs.clerk.dev/integrations/fauna) for Fauna.
+3. Set the required Clerk environment variables as shown in [the example env file](./.env.local.sample).
+4. `npm install` the required dependencies.
+5. `npm run dev` and you are good to go.
 
-## Learn More
+## Contact
 
-To learn more about Clerk.dev and Next.js, take a look at the following resources:
-
-- [Quick start](https://docs.clerk.dev/get-started/nextjs?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter)
-- [Clerk.dev Documentation](https://docs.clerk.dev/?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter) - learn about Clerk.dev features and API.
-- [Next.js Documentation](https://nextjs.org/docs?utm_source=github&utm_medium=starter_repos&utm_campaign=nextjs_starter) - learn about Next.js features and API.
+If you need support or have anything you would like to ask, please reach out in our [Discord channel](https://discord.com/invite/b5rXHjAg7A). We'd love to chat!
