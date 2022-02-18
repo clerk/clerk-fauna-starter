@@ -12,6 +12,7 @@
   max-width: 540px;
   padding-top: 2rem;
   flex: 1;
+  text-align: center;
 }
 
 .footer {
@@ -55,18 +56,15 @@
 }
 
 .arrow {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
 
 .cards {
-  margin: 2rem;
-}
-
-.card {
-  min-height: 135px;
-  border: 2px solid #fff;
-  border-radius: 0.5em;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  margin: 2rem 0;
 }
 
 .card:empty {
@@ -85,15 +83,11 @@
     linear-gradient(#f2f2f2 16px, transparent 0),
     linear-gradient(#f2f2f2 16px, transparent 0),
     linear-gradient(#f2f2f2 16px, transparent 0);
-
   background-repeat: repeat-y;
-
   background-size: 100px 200px, /* circle */ 50px 200px,
     /* highlight */ 150px 200px, 350px 200px, 200px 200px;
-
   background-position: 0 0, /* circle */ 0 0, /* highlight */ 70px 36px,
     70px 58px, 70px 80px;
-
   animation: shine 1s infinite;
 }
 
@@ -118,19 +112,31 @@
 }
 
 .cardContent {
-  background: transparent;
-  border: none;
   display: grid;
   grid-template-columns: 24px 1fr;
   gap: 1em;
+  align-items: center;
+  width: 100%;
   padding: 1.5em 1em;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 0.5em;
+  transition: color 0.15s ease, border-color 0.15s ease;
   text-align: left;
   color: inherit;
   text-decoration: none;
+  cursor: pointer;
 }
 
-.cardContent img {
-  margin-top: 0.2rem;
+.cardContent:hover,
+.cardContent:focus,
+.cardContent:active {
+  border-color: #f2f2f2;
+}
+
+.cardLogo {
+  width: 48px;
+  height: 48px;
 }
 
 .logo {
@@ -178,24 +184,13 @@
     margin-bottom: 1rem;
   }
 
-  .card:hover,
-  .card:focus,
-  .card:active {
-    border-color: #f2f2f2;
-  }
-
-  .card:hover .arrow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
-
   .cardContent {
-    grid-template-columns: 24px 1fr 42px;
+    grid-template-columns: 50px 1fr 42px;
     padding: 2em;
-    cursor: pointer;
-    font: inherit;
+  }
+
+  .cardContent:hover .arrow {
+    opacity: 1;
   }
 
   .links {
