@@ -1,27 +1,8 @@
 import React from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import styles from '../styles/Home.module.css';
-import { SignedIn, SignedOut, useSession } from '@clerk/nextjs';
+import { SignedIn, SignedOut, useAuth } from '@clerk/nextjs';
 import { verifyIdentity } from '../lib/fauna';
-
-const ClerkFeatures = () => (
-  <Link href="/user">
-    <a className={styles.cardContent}>
-      <img src="/icons/layout.svg" />
-      <div>
-        <h3>Explore features provided by Clerk</h3>
-        <p>
-          Interact with the user button, user profile, and more to preview what
-          your users will see
-        </p>
-      </div>
-      <div className={styles.arrow}>
-        <img src="/icons/arrow-right.svg" />
-      </div>
-    </a>
-  </Link>
-);
 
 const SignupLink = () => (
   <Link href="/sign-up">
@@ -41,15 +22,19 @@ const SignupLink = () => (
   </Link>
 );
 
-const clerkCode = `import { withSession } from '@clerk/nextjs/api';
+const clerkCode = `
+import { withAuth } from "@clerk/nextjs/api";
 
-export default withSession((req, res) => {
-  if (req.session) {
-    res.status(200).json({ id: req.session.userId });
-  } else {
-    res.status(401).json({ id: null });
+export default withAuth((req, res) => {
+  const { sessionId } = req.auth;
+
+  if (!sessionId) {
+    return res.status(401).json({ id: null });
   }
-});`;
+
+  return res.status(200).json({ id: sessionId });
+});
+`.trim();
 
 const faunaCode = `import faunadb from 'faunadb';
 const q = faunadb.query;
@@ -124,7 +109,7 @@ const Main = () => (
 );
 
 const Example = () => {
-  const { getToken } = useSession();
+  const { getToken } = useAuth();
 
   React.useEffect(() => {
     if (window.Prism) {
@@ -147,11 +132,13 @@ const Example = () => {
       const body = await verifyIdentity(secret);
       setResponse(JSON.stringify(body, null, '  '));
     } catch (e) {
+      console.log(e);
       setResponse(
         '// There was an error with the request. Please contact support@clerk.dev'
       );
     }
   };
+
   const makeRequest = async () => {
     setActive('clerk');
     setResponse('// Loading...');
