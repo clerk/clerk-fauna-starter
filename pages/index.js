@@ -1,8 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import styles from '../styles/Home.module.css';
 import { SignedIn, SignedOut, useAuth } from '@clerk/nextjs';
-import { verifyIdentity } from '../lib/fauna';
+import { verifyIdentity } from '/lib/fauna';
+import styles from '/styles/Shared.module.css';
 
 const SignupLink = () => (
   <Link href="/sign-up">
