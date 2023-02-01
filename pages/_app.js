@@ -47,11 +47,8 @@ const MyApp = ({ Component, pageProps }) => {
             <SignedOut>
               <main>
                 <p>
-                  Please{' '}
-                  <Link href="/sign-in">
-                    <a>sign in</a>
-                  </Link>{' '}
-                  to access this page.
+                  Please <Link href="/sign-in">sign in</Link> to access this
+                  page.
                 </p>
               </main>
             </SignedOut>
